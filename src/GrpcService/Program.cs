@@ -3,22 +3,25 @@ using GrpcService.Services;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Serilog;
+using Serilog.Sinks.Grafana.Loki;
 
 Console.Title = "GrpcService";
 var builder = WebApplication.CreateBuilder(args);
 
-var connStr = builder.Configuration.GetConnectionString("Postgres") ??
-              "Host=localhost;Port=5432;Database=observabilitydemo;Username=postgres;Password=123456";
+var connStr =
+    builder.Configuration.GetConnectionString("Postgres")
+    ?? "Host=localhost;Port=5432;Database=observabilitydemo;Username=postgres;Password=123456";
 
 // EF Core PostgreSQL
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connStr));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connStr));
 
 // gRPC
 builder.Services.AddGrpc();
 
 // OpenTelemetry
-builder.Services.AddOpenTelemetry()
+builder
+    .Services.AddOpenTelemetry()
     .WithTracing(tracerProviderBuilder =>
     {
         tracerProviderBuilder
@@ -32,6 +35,17 @@ builder.Services.AddOpenTelemetry()
                 opt.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
             });
     });
+
+builder.Host.UseSerilog(
+    (ctx, config) =>
+    {
+        config
+            .ReadFrom.Configuration(ctx.Configuration)
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.GrafanaLoki("http://localhost:3100");
+    }
+);
 
 var app = builder.Build();
 

@@ -4,21 +4,19 @@ using Serilog;
 using Serilog.Sinks.Grafana.Loki;
 
 Console.Title = "ApiService";
-Log.Logger = new LoggerConfiguration()
-    //.WriteTo.Console()
-    .WriteTo.GrafanaLoki("http://localhost:3100")
-    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 // OpenTelemetry
-builder.Services.AddOpenTelemetry()
+builder
+    .Services.AddOpenTelemetry()
     .WithTracing(tracerProviderBuilder =>
     {
         tracerProviderBuilder
@@ -31,6 +29,17 @@ builder.Services.AddOpenTelemetry()
                 opt.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
             });
     });
+
+builder.Host.UseSerilog(
+    (ctx, config) =>
+    {
+        config
+            .ReadFrom.Configuration(ctx.Configuration)
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.GrafanaLoki("http://localhost:3100");
+    }
+);
 
 var app = builder.Build();
 
