@@ -31,13 +31,20 @@ builder
     });
 
 builder.Host.UseSerilog(
-    (ctx, config) =>
+    (context, services, configuration) =>
     {
-        config
-            .ReadFrom.Configuration(ctx.Configuration)
+        configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
             .Enrich.FromLogContext()
             .WriteTo.Console()
-            .WriteTo.GrafanaLoki("http://localhost:3100");
+            .WriteTo.GrafanaLoki(
+                "http://localhost:3100",
+                labels:
+                [
+                    new LokiLabel { Key = "app", Value = "ApiService" },
+                ]
+            );
     }
 );
 
