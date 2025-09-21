@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
+Console.Title = "GrpcService";
 var builder = WebApplication.CreateBuilder(args);
 
 var connStr = builder.Configuration.GetConnectionString("Postgres") ??
@@ -28,6 +29,7 @@ builder.Services.AddOpenTelemetry()
             .AddOtlpExporter(opt =>
             {
                 opt.Endpoint = new Uri("http://localhost:4317"); // Tempo OTLP gRPC
+                opt.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
             });
     });
 

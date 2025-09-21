@@ -29,6 +29,9 @@ services:
     command: -config.file=/etc/tempo.yaml
     volumes:
       - ./tempo.yaml:/etc/tempo.yaml
+      - ./tempo-data:/var/tempo
+    depends_on:
+      - prometheus
 
   promtail:
     image: grafana/promtail:2.9.0
@@ -46,6 +49,10 @@ services:
       - "5432:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data
-      
+  
+
 #volumes:
 #  grafana-data:
+
+volumes:
+  tempo-data:

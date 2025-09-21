@@ -1,5 +1,13 @@
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Serilog;
+using Serilog.Sinks.Grafana.Loki;
+
+Console.Title = "ApiService";
+Log.Logger = new LoggerConfiguration()
+    //.WriteTo.Console()
+    .WriteTo.GrafanaLoki("http://localhost:3100")
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +28,7 @@ builder.Services.AddOpenTelemetry()
             .AddOtlpExporter(opt =>
             {
                 opt.Endpoint = new Uri("http://localhost:4317"); // Tempo OTLP gRPC
+                opt.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
             });
     });
 
