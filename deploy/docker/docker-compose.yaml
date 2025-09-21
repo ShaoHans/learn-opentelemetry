@@ -18,6 +18,9 @@ services:
     image: grafana/loki:2.9.0
     ports:
       - "3100:3100"
+    volumes:
+    - ./loki-data:/loki   # 挂载本地目录作为日志存储
+    - ./loki.yaml:/etc/loki/local-config.yaml
     command: -config.file=/etc/loki/local-config.yaml
 
   tempo:
