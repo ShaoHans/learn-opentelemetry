@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcService";
+
+service Orders {
+  rpc GetOrders (UserRequest) returns (OrdersReply);
+}
+
+message UserRequest {
+  int32 userId = 1;
+}
+
+message OrderInfo {
+  int32 id = 1;
+  string product = 2;
+  double amount = 3;
+}
+
+message OrdersReply {
+  repeated OrderInfo orders = 1;
+}
