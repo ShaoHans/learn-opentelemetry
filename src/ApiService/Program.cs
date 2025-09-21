@@ -16,6 +16,7 @@ builder.Services.AddOpenTelemetry()
         tracerProviderBuilder
             .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("ApiService"))
             .AddAspNetCoreInstrumentation()
+            .AddConsoleExporter()
             .AddOtlpExporter(opt =>
             {
                 opt.Endpoint = new Uri("http://localhost:4317"); // Tempo OTLP gRPC

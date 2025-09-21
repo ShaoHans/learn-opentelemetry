@@ -24,6 +24,7 @@ builder.Services.AddOpenTelemetry()
             .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("GrpcService"))
             .AddAspNetCoreInstrumentation()
             .AddEntityFrameworkCoreInstrumentation()
+            .AddConsoleExporter()
             .AddOtlpExporter(opt =>
             {
                 opt.Endpoint = new Uri("http://localhost:4317"); // Tempo OTLP gRPC
